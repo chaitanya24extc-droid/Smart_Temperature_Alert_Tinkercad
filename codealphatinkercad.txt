@@ -1,0 +1,43 @@
+// CodeAlpha IoT Internship - Task 2: Sensor-Based Simulation
+// Smart Temperature Monitoring & Alert System
+
+const int tempPin = A0;    // TMP36 analog output pin
+const int ledPin = 8;      // Alert LED pin
+const int buzzerPin = 9;   // Alert Piezo buzzer pin
+const float threshold = 30.0; // Temperature threshold in Celsius
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  Serial.begin(9600); // Initialize Serial Monitor for debugging/logging
+}
+
+void loop() {
+  // 1. Read analog voltage from TMP36 (0 to 1023)
+  int sensorValue = analogRead(tempPin);
+  
+  // 2. Convert analog reading to voltage (5.0V reference)
+  float voltage = sensorValue * (5.0 / 1023.0);
+  
+  // 3. Convert voltage to temperature in Celsius
+  // TMP36 has a 500mV offset at 0°C and 10mV/°C scale factor
+  float temperatureC = (voltage - 0.5) * 100.0;
+
+  // Print temperature to Serial Monitor
+  Serial.print("Current Temperature: ");
+  Serial.print(temperatureC);
+  Serial.println(" C");
+
+  // 4. Trigger alert if temperature exceeds threshold
+  if (temperatureC > threshold) {
+    digitalWrite(ledPin, HIGH);
+    tone(buzzerPin, 1000); // 1kHz alert tone
+    Serial.println("STATUS: HIGH TEMPERATURE ALERT!");
+  } else {
+    digitalWrite(ledPin, LOW);
+    noTone(buzzerPin);
+    Serial.println("STATUS: Normal");
+  }
+
+  delay(1000); // Wait 1 second before next reading
+}
